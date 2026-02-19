@@ -1,4 +1,3 @@
-import os
 import random
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -302,6 +301,4 @@ def handle_win(player):
     socketio.emit('update_state', game.get_public_state())
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5001))
-    debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
-    socketio.run(app, debug=debug_mode, host='0.0.0.0', port=port)
+    socketio.run(app, debug=True, host='0.0.0.0', port=5001)

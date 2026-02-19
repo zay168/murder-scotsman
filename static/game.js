@@ -1,8 +1,4 @@
-const socket = io({
-    path: "/socket.io",
-    transports: ["websocket"],
-    upgrade: false
-});
+const socket = io();
 
 // State
 let myId = null;
@@ -46,6 +42,7 @@ initTrack();
 // --- Socket Handlers ---
 
 socket.on('connect', () => {
+    console.log("Socket connected with ID:", socket.id);
     document.querySelector('.server-status').innerText = "Connected to Server";
 });
 
@@ -277,9 +274,13 @@ socket.on('game_over', (data) => {
 // --- Actions ---
 
 function joinGame() {
+    console.log("Join button clicked!");
     const name = document.getElementById('player-name').value;
     if (name) {
+        console.log("Emitting join_game for name:", name);
         socket.emit('join_game', { name: name });
+    } else {
+        console.warn("No name entered!");
     }
 }
 
