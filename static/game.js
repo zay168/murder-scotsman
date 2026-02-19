@@ -1,4 +1,8 @@
-const socket = io();
+const socket = io({
+    path: "/socket.io",
+    transports: ["websocket"],
+    upgrade: false
+});
 
 // State
 let myId = null;
