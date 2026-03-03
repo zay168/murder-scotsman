@@ -14,7 +14,7 @@ taskkill /F /IM node.exe >nul 2>&1
 
 :: 2. Lancer le serveur Python en arrière-plan
 echo [2/4] Lancement du serveur de jeu...
-start /B "" "python.exe" app.py
+start /B "" "C:\Users\ALSARRAFZayd\AppData\Local\Programs\Python\Python312\python.exe" app.py
 
 :: Attendre que le serveur démarre
 timeout /t 3 /nobreak >nul

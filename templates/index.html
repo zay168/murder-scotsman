@@ -10,6 +10,7 @@
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Courier+Prime:wght@400;700&display=swap"
         rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
         /* --- SKEUOMORPHIC LUXURY THEME --- */
@@ -30,10 +31,7 @@
 
         body {
             /* Deep Royal Blue Velvet / Leather Table Texture */
-            background-color: var(--velvet-blue);
-            background-image:
-                radial-gradient(circle at 50% 50%, #162035 0%, #050810 100%),
-                url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+            background-color: transparent;
             color: var(--cream);
             font-family: 'Courier Prime', monospace;
             margin: 0;
@@ -50,19 +48,10 @@
         .main-container {
             width: 100%;
             max-width: 1100px;
-            /* Wood border effect */
-            border: 15px solid var(--wood);
-            border-image: linear-gradient(45deg, #3e2723, #5d4037, #3e2723) 1;
-            box-shadow:
-                0 0 0 2px #1a0f0a inset,
-                /* Inner dark edge */
-                0 20px 50px rgba(0, 0, 0, 0.8);
-            /* Deep table shadow */
             padding: 40px;
             position: relative;
-            background: rgba(15, 23, 42, 0.6);
-            /* Slightly see-through to velvet */
-            backdrop-filter: blur(2px);
+            background: transparent;
+            /* Removed heavy boundaries so the 3D scene is fully visible */
         }
 
         header {
@@ -106,14 +95,18 @@
         #lobby-screen {
             text-align: center;
             padding: 60px;
-            /* Ticket Look */
-            background: var(--paper);
+            /* Frost Glass Ticket */
+            background: rgba(255, 252, 245, 0.85);
+            /* Semi transparent paper */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             color: var(--leather-dark);
             width: 600px;
             margin: 0 auto;
             transform: rotate(-1deg);
-            box-shadow: 5px 10px 20px rgba(0, 0, 0, 0.4);
-            border: 2px dashed #000;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            border: 2px dashed rgba(26, 15, 10, 0.5);
+            border-radius: 6px;
         }
 
         #lobby-screen h2 {
@@ -175,7 +168,9 @@
 
         /* Role Card (Dossier) */
         .identity-card {
-            background-color: #fcfbf7;
+            background: rgba(252, 251, 247, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             /* Off-white paper */
             color: #1a1a1a;
             padding: 30px;
@@ -183,14 +178,13 @@
             margin: 0 auto 50px;
             /* Physical Paper Properties */
             box-shadow:
-                1px 1px 0 #ddd,
-                2px 2px 0 #ccc,
-                5px 15px 30px rgba(0, 0, 0, 0.5);
+                5px 15px 30px rgba(0, 0, 0, 0.8);
             /* Deep shadow lift */
             transform: rotate(-2deg);
             /* Organic placement */
             position: relative;
             z-index: 10;
+            border-radius: 4px;
         }
 
         /* Paper Texture Overlay */
@@ -248,51 +242,65 @@
         /* Track (Board Game Style) */
         .track-container {
             position: relative;
-            margin: 80px 0;
-            height: 8px;
-            /* Thicker line */
-            background: linear-gradient(to bottom, #ffd700, #b8860b);
-            /* Gold Bar */
-            border-radius: 4px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            margin: 140px 0 100px 0;
+            /* Pushed much further down so it clears the dossier */
+            height: 12px;
+            /* 3D Gold Bar */
+            background: linear-gradient(to bottom, #ffeb99 0%, #d4af37 30%, #8a7020 70%, #3e2723 100%);
+            border-radius: 6px;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.9), inset 0 2px 2px rgba(255, 255, 255, 0.6);
+            z-index: 5;
         }
 
         .station {
-            width: 24px;
-            height: 24px;
-            background: var(--bg-navy);
-            border: 4px solid #ffd700;
+            width: 30px;
+            height: 30px;
+            /* 3D Gold / Brass Pin */
+            background: radial-gradient(circle at 30% 30%, #fff7cc, #d4af37, #8a7020, #4a3b2a);
+            border: 2px solid #2b1d0e;
             border-radius: 50%;
             position: absolute;
             top: 50%;
             transform: translate(-50%, -50%);
             z-index: 2;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.8), inset 0 -3px 6px rgba(0, 0, 0, 0.6);
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .station:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            filter: brightness(1.2);
         }
 
         /* Active Station Glow */
         .station.active-glow {
-            background: #ffd700;
-            box-shadow: 0 0 20px #ffd700;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #ffd700, #b8860b);
+            box-shadow: 0 0 25px #ffd700, 0 8px 12px rgba(0, 0, 0, 0.8);
         }
 
-        /* Legibility: Larger, Bold, Gold Labels */
+        /* Legibility: 3D Text, alternate orientation */
         .station-label {
             position: absolute;
-            bottom: 30px;
+            bottom: 35px;
             left: 50%;
-            transform: translateX(-20%) rotate(-45deg);
-            transform-origin: bottom left;
-            font-family: 'Playfair Display', serif;
+            transform: translateX(-50%) rotate(-30deg);
+            transform-origin: bottom center;
+            font-family: 'Courier Prime', monospace;
             color: #ffd700;
-            /* Bright Gold */
-            font-size: 1.1rem;
-            /* Larger */
+            font-size: 0.95rem;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 2px 2px 0px #000;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.9), 1px 1px 0px #000, -1px -1px 0px #000;
             white-space: nowrap;
+        }
+
+        /* Alternate every other node to point downwards to avoid severe overlapping */
+        .station:nth-child(even) .station-label {
+            bottom: auto;
+            top: 35px;
+            transform: translateX(-50%) rotate(30deg);
+            transform-origin: top center;
         }
 
         /* Player Tokens (Unicode Trains/Pawns) */
@@ -302,14 +310,12 @@
             background: none;
             border: none;
             position: absolute;
-            top: 50px;
-            /* Moved below the line */
+            top: -40px;
+            /* Stand right on top of the track pin */
             transform: translate(-50%, 0);
-            /* Reset vertical translation */
             z-index: 10;
-            font-size: 2rem;
-            filter: drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.6));
-            /* Cast shadow on board */
+            font-size: 2.5rem;
+            filter: drop-shadow(0 15px 10px rgba(0, 0, 0, 0.8));
             transition: left 1.0s cubic-bezier(0.5, 0, 0, 1);
         }
 
@@ -330,19 +336,16 @@
 
         /* Passenger Manifest (Ticket Styled List) */
         .passenger-manifest {
-            background: #fdf5e6;
+            background: rgba(253, 245, 230, 0.9);
+            backdrop-filter: blur(8px);
             /* Old Lace */
-            border: 1px solid #d2b48c;
+            border: 1px solid rgba(210, 180, 140, 0.5);
             padding: 15px;
             width: fit-content;
             margin: 0 auto;
             position: relative;
-            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
-            /* Corner cuts for ticket look */
-            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%,
-                    0% 20%, 5% 25%, 0% 30%
-                    /* Jagged edge simulation simplified */
-                );
+            box-shadow: 3px 15px 30px rgba(0, 0, 0, 0.6);
+            border-radius: 6px;
         }
 
         .passenger-manifest h4 {
@@ -371,13 +374,15 @@
 
         /* Log Journal */
         .log-container {
-            background: var(--paper);
+            background: rgba(255, 252, 245, 0.85);
+            /* Frost glass paper */
+            backdrop-filter: blur(8px);
             color: #2b1d0e;
             background-image:
-                linear-gradient(#e8e0c7 1px, transparent 1px);
+                linear-gradient(rgba(232, 224, 199, 0.4) 1px, transparent 1px);
             background-size: 100% 1.5em;
             /* Lined paper */
-            border: 1px solid #c0b090;
+            border: 1px solid rgba(192, 176, 144, 0.5);
             height: 250px;
             overflow-y: auto;
             padding: 20px;
@@ -386,11 +391,11 @@
             margin-top: 50px;
             /* Box shadow for depth */
             box-shadow:
-                1px 1px 2px rgba(0, 0, 0, 0.2),
-                10px 10px 30px rgba(0, 0, 0, 0.4);
+                10px 10px 30px rgba(0, 0, 0, 0.8);
             transform: rotate(1deg);
             /* Slight natural rotation */
             position: relative;
+            border-radius: 4px;
         }
 
         /* Top tape */
@@ -665,6 +670,7 @@
     </div>
 
     <script src="{{ url_for('static', filename='game.js') }}?v=3"></script>
+    <script src="{{ url_for('static', filename='3d_bg.js') }}"></script>
     <script>
         // --- Overwrite Render Function for Skeuomorphic Tokens/List ---
         // We inject this here to override game.js without breaking cache or requiring deeper logic changes
